@@ -1,25 +1,73 @@
-# gs_utils
+# 📦 gs_utils
 
-자주 사용하는 Python 함수들을 모아놓은 실용적인 툴킷 레포지토리입니다. 언제 어디서든 손쉽게 가져와 사용할 수 있도록 설계되었으며, 반복적으로 필요한 기능을 효율적으로 재사용할 수 있습니다.
+**geunsu-son's Personal Python Utility Library**  
+자주 사용하는 함수들을 정리해, 어떤 환경에서도 바로 불러 쓸 수 있게 만든 유틸리티 패키지입니다.
 
-## 특징
-- 실무에서 자주 쓰는 함수들을 엄선하여 제공
-- 직관적이고 간결한 코드
-- 다양한 프로젝트에서 손쉽게 import하여 사용 가능
+---
 
-## 설치 및 사용법
+## 🚀 Install
+
+GitHub에서 직접 설치:
+
 ```bash
 pip install git+https://github.com/your-username/gs_utils.git
 ```
 
-```python
-from gs_utils import your_function
-result = your_function(args)
-```
-
-## 기여
-유용한 함수가 있다면 PR로 자유롭게 기여해주세요!
+> 로컬에서 개발 중이라면:
+>
+> ```bash
+> git clone https://github.com/your-username/gs_utils.git
+> cd gs_utils
+> pip install -e .
+> ```
 
 ---
 
-> 개발 생산성을 높여주는 Python 유틸리티 툴킷, gs_utils
+## ✨ Included Features
+
+| 기능 | 설명 | 함수 |
+|------|------|------|
+| ⏱️ 실행 시간 측정 | 함수 실행 전후 시간을 콘솔에 출력 | `@time_tracker` |
+
+---
+
+## 🧪 Example Usage
+
+```python
+from gs_utils import time_tracker
+import time
+
+@time_tracker
+def my_task():
+    time.sleep(2)
+    return "작업 완료!"
+
+my_task()
+```
+
+실행 시 출력:
+```
+⏳ Function 'my_task' started at: 2025-07-01 10:00:00
+✅ Function 'my_task' finished at: 2025-07-01 10:00:02
+🕒 Total execution time: 2.0000 seconds
+--------------------------------------------------
+```
+
+---
+
+## 📚 Roadmap
+
+- [x] 실행 시간 측정 데코레이터 (`@time_tracker`)
+- [ ] googleapiclient 연동 함수 (편의성 ↑)
+- [ ] 추가 함수 고민 (ing)
+
+---
+
+## 🙌 Author
+
+손근수(geunsu-son)
+데이터 기반 문제 해결을 즐기는 데이터 엔지니어
+
+---
+
+> PR, 아이디어, 개선 제안은 언제든지 환영합니다!
