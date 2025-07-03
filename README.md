@@ -49,10 +49,6 @@ def my_task():
     time.sleep(2)
     return "작업 완료!"
 
-# 날짜 처리
-next_month = increment_month('202401')  # '202402'
-next_month = increment_month('24-01')   # '24-02'
-
 # URL에서 파일 ID 추출
 file_id = extract_spreadsheet_id('https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms')
 # 결과: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
