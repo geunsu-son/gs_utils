@@ -5,7 +5,7 @@ import re
 import os
 import time
 import inspect
-from .base_manager import GoogleBaseManager, retry_on_error, increment_month, extract_spreadsheet_id
+from .base_manager import GoogleBaseManager, retry_on_error, extract_spreadsheet_id
 
 class GoogleDriveManager(GoogleBaseManager):
     """구글 드라이브 관리를 위한 클래스"""
@@ -141,90 +141,3 @@ class GoogleDriveManager(GoogleBaseManager):
         ).execute()
         print(f"✅ 파일 '{file_name}' 업로드 완료 - ID: {file.get('id')}")
         return file.get('id')
-
-    def create_new_row(self, original_row, new_ym, new_file_id, new_title):
-        """
-        새로운 행 데이터 생성
-        
-        Args:
-            original_row (pd.Series): 원본 행 데이터
-            new_ym (str): 새로운 연월
-            new_file_id (str): 새로운 파일 ID
-            new_title (str): 새로운 파일 제목
-            
-        Returns:
-            pd.Series: 새로운 행 데이터
-        """
-        new_row = original_row.copy()
-        new_row['연월'] = new_ym
-        new_row['URL or ID'] = new_file_id
-        new_row['파일이름'] = new_title
-        new_row['URL 전처리'] = f"https://docs.google.com/spreadsheets/d/{new_file_id}"
-
-        preserve_columns = ['병원', '지점/데이터', '데이터', '프로그램']
-        for col in preserve_columns:
-            new_row[col] = original_row[col]
-            
-        return new_row
-    
-    @retry_on_error
-    def update_data_with_clones(self, data, target_ym):
-        """
-        데이터에서 특정 연월의 스프레드시트를 복제하고 다음 연월로 정보 업데이트
-        
-        Args:
-            data (pd.DataFrame): 병원지점별 데이터 업데이트용 URL 시트의 Data
-            target_ym (str): 대상 연월 - 포맷: yyMM (예: '2411')
-
-        Returns:
-            pd.DataFrame: 업데이트된 데이터프레임
-        """
-        new_data = []
-        target_ym_full = f"20{target_ym}"
-        sheet_insert_ym = increment_month(target_ym)
-        print(f'{target_ym} → {sheet_insert_ym} 월별 시트 복제 작업 시작!')
-        
-        for idx, row in data.iterrows():
-            if str(row['연월']) == str(target_ym):
-                try:
-                    file_name = str(row['파일이름'])
-
-                    if re.search(rf"{target_ym_full[:4]}-{target_ym_full[4:]}", file_name):
-                        pattern = rf"{target_ym_full[:4]}-{target_ym_full[4:]}"
-                        new_ym = increment_month(f"{target_ym_full[:4]}-{target_ym_full[4:]}")
-                    elif re.search(rf"{target_ym_full}", file_name):
-                        pattern = rf"{target_ym_full}"
-                        new_ym = increment_month(target_ym_full)
-                    elif re.search(rf"{target_ym}", file_name):
-                        pattern = rf"{target_ym}"
-                        new_ym = increment_month(target_ym)
-                    else:
-                        continue
-
-                    new_title = re.sub(pattern, new_ym, file_name)
-                    spreadsheet_id = extract_spreadsheet_id(row['URL 전처리'])
-                    
-                    if not spreadsheet_id:
-                        print(f"행 {idx}: 유효하지 않은 URL 또는 ID")
-                        continue
-                    
-                    new_file_id = self.clone_file(spreadsheet_id, new_title)
-                    
-                    if not new_file_id:
-                        print(f'{new_title} 시트 생성에 실패했습니다.')
-                        new_row = self.create_new_row(row, sheet_insert_ym, '시트생성 실패', new_title)
-                        new_data.append(new_row)
-                    else:
-                        new_row = self.create_new_row(row, sheet_insert_ym, new_file_id, new_title)
-                        new_data.append(new_row)
-                        print(f"{file_name} => {new_title}: 파일 복제 및 데이터 업데이트 완료")
-                
-                except Exception as e:
-                    print(f"{new_title} 처리 중 오류 발생: {str(e)}")
-                    continue
-        
-        if new_data:
-            return pd.concat([pd.DataFrame(new_data), data], ignore_index=True)
-        else:
-            print("복제된 데이터가 없습니다.")
-            return data 
