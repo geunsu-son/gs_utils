@@ -4,7 +4,6 @@ from .google import (
     GoogleDriveManager, 
     GoogleSheetManager, 
     retry_on_error,
-    increment_month,
     extract_spreadsheet_id,
     convert_sheetid_to_url,
     convert_to_number
@@ -16,7 +15,6 @@ __all__ = [
     'GoogleDriveManager',
     'GoogleSheetManager',
     'retry_on_error',
-    'increment_month',
     'extract_spreadsheet_id',
     'convert_sheetid_to_url',
     'convert_to_number'
