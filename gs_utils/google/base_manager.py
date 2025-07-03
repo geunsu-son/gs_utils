@@ -28,39 +28,6 @@ def retry_on_error(func):
         raise RuntimeError("🔥 요청 실패 - 최대 시도 횟수를 초과함.")
     return wrapper
 
-def increment_month(ym):
-    """
-    주어진 연월을 다음 연월로 증가
-    
-    Args:
-        ym (str): 연월 문자열 (예: '202401', '2401', 또는 '2024-01')
-    
-    Returns:
-        str: 다음 연월 문자열 (예: '202402', '2024-02')
-    
-    Raises:
-        RuntimeError: 날짜 패턴이 올바르지 않을 경우
-    """
-    if '-' in ym:
-        year, month = [int(x) for x in ym.split('-')]
-    else:
-        year, month = divmod(int(ym), 100)
-
-    if month == 12:
-        year += 1
-        month = 1
-    else:
-        month += 1
-
-    if len(ym) > 5:
-        re_ym = f"{year:04d}-{month:02d}" if '-' in ym else f"{year:04d}{month:02d}"
-    elif len(ym) <= 5:
-        re_ym = f"{year:02d}-{month:02d}" if '-' in ym else f"{year:02d}{month:02d}"
-    else:
-        raise RuntimeError(f"⚠️ {inspect.currentframe().f_code.co_name} | 날짜패턴 재확인")
-
-    return re_ym
-
 def extract_spreadsheet_id(spreadsheet_url):
     """
     URL에서 파일 ID 추출
@@ -207,4 +174,4 @@ class GoogleBaseManager:
                     time.sleep(1)
                 else:
                     raise RuntimeError(f"⚠️ API error ({e})")
-        raise RuntimeError("❌ 요청 실패 - 모든 계정에서 오류 발생.") 
+        raise RuntimeError("❌ 요청 실패 - 모든 계정에서 오류 발생.")
