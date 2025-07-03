@@ -28,12 +28,11 @@ pip install git+https://github.com/your-username/gs_utils.git
 | 기능 | 설명 | 함수/클래스 |
 |------|------|------|
 | ⏱️ 실행 시간 측정 | 함수 실행 전후 시간을 콘솔에 출력 | `@time_tracker` |
-| 🔄 API 재시도 로직 | Google API 요청 실패 시 자동 재시도 | `@retry_on_error` |
-| 📅 날짜 처리 | 연월 증가 및 날짜 패턴 변환 | `increment_month()` |
-| 🔗 URL/ID 변환 | Google 스프레드시트 URL ↔ ID 변환 | `extract_spreadsheet_id()`, `convert_sheetid_to_url()` |
-| 🔢 데이터 변환 | 문자열을 숫자로 변환 | `convert_to_number()` |
+| 🔄 GoogleAPI 재시도 로직 | Google API 요청 실패 시 자동 재시도 | `@retry_on_error` |
+| 🔗 GoogleDocsURL/ID 변환 | Google 스프레드시트 URL ↔ ID 변환 | `extract_spreadsheet_id()`, `convert_sheetid_to_url()` |
 | 📁 Google Drive 관리 | 파일 복제, 삭제, 폴더 생성, 업로드 | `GoogleDriveManager` |
 | 📊 Google Sheets 관리 | 데이터 읽기/쓰기, 서식 복사, 시트 관리 | `GoogleSheetManager` |
+| 🖥️ 윈도우 자동화 | 프로그램 실행, 이미지 매칭 클릭, 다이얼로그 대기 | `run_program()`, `click_by_image_match()`, `check_open_dialog()` |
 
 ---
 
@@ -67,6 +66,28 @@ my_task()
 ✅ Function 'my_task' finished at: 2025-07-01 10:00:02
 🕒 Total execution time: 2.0000 seconds
 --------------------------------------------------
+```
+
+### 윈도우 자동화
+
+```python
+from gs_utils import run_program, click_by_image_match, check_open_dialog
+
+# 프로그램 실행 (Win+R)
+run_program('notepad.exe')
+
+# 이미지 매칭을 통한 버튼 클릭
+click_by_image_match('button.png', confidence=0.8)
+
+# 특정 화면이 나올 때까지 대기하며 클릭
+click_by_image_match(
+    image_file='login_button.png',
+    check_yn=1,
+    check_image_file='dashboard.png'
+)
+
+# 특정 다이얼로그 창이 열릴 때까지 대기
+check_open_dialog('파일 열기')
 ```
 
 ### Google Drive 관리
@@ -133,19 +154,15 @@ sheet_manager.copy_sheet_format(
 ```python
 from gs_utils import (
     GoogleSheetManager, 
-    increment_month, 
     extract_spreadsheet_id,
     time_tracker
 )
 
 @time_tracker
-def monthly_report_generator():
+def automated_report_process():
+    # Google Sheets에서 데이터 가져오기
     sheet_manager = GoogleSheetManager()
-    
-    # 유틸리티 함수와 클래스를 함께 사용
-    current_month = '202401'
-    next_month = increment_month(current_month)
-    
+
     spreadsheet_url = 'https://docs.google.com/spreadsheets/d/...'
     file_id = extract_spreadsheet_id(spreadsheet_url)
     
@@ -153,9 +170,9 @@ def monthly_report_generator():
     df = sheet_manager.get_dataframe_from_sheet(file_id, 'Data')
     # ... 데이터 처리 로직
     
-    return "월간 리포트 생성 완료!"
+    return "리포트 자동화 프로세스 완료!"
 
-monthly_report_generator()
+automated_report_process()
 ```
 
 ---
@@ -166,6 +183,7 @@ monthly_report_generator()
 gs_utils/
 ├── __init__.py              # 메인 export
 ├── decorators.py            # 데코레이터 (time_tracker)
+├── window_controler.py      # 윈도우 자동화 기능
 └── google/
     ├── __init__.py          # Google API export
     ├── base_manager.py      # 기본 클래스 + 공통 유틸리티
@@ -178,7 +196,8 @@ gs_utils/
 - **`GoogleBaseManager`**: 모든 Google API 클래스의 기본 클래스
 - **`GoogleDriveManager`**: Google Drive 파일/폴더 관리
 - **`GoogleSheetManager`**: Google Sheets 데이터 관리
-- **공통 유틸리티 함수들**: 날짜, URL, 데이터 변환 등
+- **윈도우 자동화 함수들**: `run_program()`, `click_by_image_match()`, `check_open_dialog()`
+- **`time_tracker`**: 실행 시간 측정
 
 ---
 
@@ -188,7 +207,10 @@ gs_utils/
 - [x] Google API 연동 함수 (편의성 ↑)
   - [x] Google Drive 관리 (`GoogleDriveManager`)
   - [x] Google Sheets 관리 (`GoogleSheetManager`)
-  - [x] 공통 유틸리티 함수들
+- [x] 윈도우 자동화 기능
+  - [x] 프로그램 실행 (`run_program()`)
+  - [x] 이미지 매칭 클릭 (`click_by_image_match()`)
+  - [x] 다이얼로그 대기 (`check_open_dialog()`)
 - [ ] Google Calendar API 연동
 - [ ] Google Docs API 연동
 - [ ] 추가 유틸리티 함수들
@@ -198,7 +220,7 @@ gs_utils/
 ## 🔧 Requirements
 
 ```bash
-pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib pandas
+pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib pandas pyautogui pywinauto
 ```
 
 ---
