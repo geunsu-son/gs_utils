@@ -14,18 +14,18 @@ def retry_on_error(func):
             try:
                 return func(self, *args, **kwargs)
             except HttpError as e:
-                if e.resp.status in [403, 429, 503]:
-                    print(f"⚠️ API quota error ({e.resp.status}) - retrying with next account...")
-                    self._build_next_service()
-                    time.sleep(1)
-                else:
-                    raise RuntimeError(f"⚠️ API error ({e})")
-                    time.sleep(1)
+                print(f"⚠️ API quota error ({e.resp.status}) - retrying with next account... (attempt {attempt+1}/{self.max_attempts})")
+                self._build_next_service()
+                time.sleep(2)
             except (TimeoutError, socket.timeout) as e:
                 print(f"⚠️ Timeout error - retrying with next account... (attempt {attempt+1}/{self.max_attempts})")
                 self._build_next_service()
                 time.sleep(2)
-        raise RuntimeError("🔥 요청 실패 - 최대 시도 횟수를 초과함.")
+            except Exception as e:
+                print(f"⚠️ Unexpected error - retrying with next account...  (attempt {attempt+1}/{self.max_attempts})\n - ℹ️ Error info: {e}")
+                self._build_next_service()
+                time.sleep(2)
+        raise RuntimeError(f"🔥 Request failed - exceeded maximum attempts. - {func.__name__}")
     return wrapper
 
 def extract_spreadsheet_id(spreadsheet_url):
