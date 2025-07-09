@@ -103,7 +103,7 @@ class GoogleBaseManager:
             raise FileNotFoundError(f"No .json files found in {json_folder}")
 
         self.current_index = 0
-        self.cycle_sleep_duration = 15  # Sleep duration in seconds after each full cycle
+        self.cycle_sleep_duration = 30  # Sleep duration in seconds after each full cycle
         self._build_next_service()
 
     def _get_next_json(self):
@@ -168,10 +168,15 @@ class GoogleBaseManager:
             try:
                 return func_callable(self.service)
             except HttpError as e:
-                if e.resp.status in [403, 429]:
-                    print(f"⚠️ API quota error ({e.resp.status}) - retrying with next account...")
-                    self._build_next_service()
-                    time.sleep(1)
-                else:
-                    raise RuntimeError(f"⚠️ API error ({e})")
-        raise RuntimeError("❌ 요청 실패 - 모든 계정에서 오류 발생.")
+                print(f"⚠️ API quota error ({e.resp.status}) - retrying with next account... (attempt {attempt+1}/{self.max_attempts})")
+                self._build_next_service()
+                time.sleep(2)
+            except (TimeoutError, socket.timeout) as e:
+                print(f"⚠️ Timeout error - retrying with next account... (attempt {attempt+1}/{self.max_attempts})")
+                self._build_next_service()
+                time.sleep(2)
+            except Exception as e:
+                print(f"⚠️ Unexpected error - retrying with next account...  (attempt {attempt+1}/{self.max_attempts})\n - ℹ️ Error info: {e}")
+                self._build_next_service()
+                time.sleep(2)
+        raise RuntimeError(f"🔥 Request failed - exceeded maximum attempts. - {func_callable.__name__}")
