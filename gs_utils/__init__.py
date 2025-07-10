@@ -6,7 +6,9 @@ from .google import (
     retry_on_error,
     extract_spreadsheet_id,
     convert_sheetid_to_url,
-    convert_to_number
+    convert_to_number,
+    extract_googledrive_id,
+    convert_googledrive_id_to_url
 )
 
 __all__ = [
@@ -17,5 +19,7 @@ __all__ = [
     'retry_on_error',
     'extract_spreadsheet_id',
     'convert_sheetid_to_url',
-    'convert_to_number'
+    'convert_to_number',
+    'extract_googledrive_id',
+    'convert_googledrive_id_to_url'
 ]

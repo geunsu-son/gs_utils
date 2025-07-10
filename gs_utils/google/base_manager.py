@@ -54,6 +54,32 @@ def convert_sheetid_to_url(spreadsheet_id):
     """
     return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}"
 
+def extract_googledrive_id(googledrive_url):
+    """
+    URL에서 파일 ID 추출
+    
+    Args:
+        googledrive_url (str): 구글 드라이브 URL
+        
+    Returns:
+        str: 파일 ID
+    """
+    if "drive.google.com" in googledrive_url:
+        return googledrive_url.split("/folders/")[-1].split("/")[0]
+    return googledrive_url
+
+def convert_googledrive_id_to_url(googledrive_id):
+    """
+    파일 id를 구글시트 링크로 변경경
+    
+    Args:
+        googledrive_id (str): 구글 드라이브 ID
+        
+    Returns:
+        str: 구글 드라이브 링크
+    """
+    return f"https://drive.google.com/drive/folders/{googledrive_id}"
+
 def convert_to_number(value):
     """
     문자열을 숫자로 변환

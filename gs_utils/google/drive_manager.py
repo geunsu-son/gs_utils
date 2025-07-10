@@ -5,7 +5,7 @@ import re
 import os
 import time
 import inspect
-from .base_manager import GoogleBaseManager, retry_on_error, extract_spreadsheet_id
+from .base_manager import GoogleBaseManager, extract_googledrive_id
 
 class GoogleDriveManager(GoogleBaseManager):
     """구글 드라이브 관리를 위한 클래스"""
@@ -42,6 +42,36 @@ class GoogleDriveManager(GoogleBaseManager):
             json_folder=json_folder
         )
 
+    def list_files_in_folder(self, parent_folder_id):
+        """
+        주어진 폴더 안의 파일명과 ID를 리스트업
+        
+        Args:
+            parent_folder_id (str): 파일을 리스트업할 상위 폴더 ID
+            
+        Returns:
+            list: 파일명과 ID의 튜플 리스트
+        """
+        parent_folder_id = extract_googledrive_id(parent_folder_id)
+        files_list = []
+        query = f"'{parent_folder_id}' in parents"
+        
+        try:
+            results = self.service.files().list(
+                q=query,
+                fields="files(id, name)",
+                supportsAllDrives=True
+            ).execute()
+            files = results.get('files', [])
+            
+            for file in files:
+                files_list.append((file['name'], file['id']))
+                
+        except HttpError as error:
+            print(f"⚠️ {inspect.currentframe().f_code.co_name} | 파일 리스트업 중 오류 발생: {error}")
+        
+        return files_list
+    
     def clone_file(self, file_id, new_title):
         """
         구글 스프레드시트를 복제하고 새 이름 지정
