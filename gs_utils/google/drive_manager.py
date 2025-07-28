@@ -42,10 +42,11 @@ class GoogleDriveManager(GoogleBaseManager):
             json_folder=json_folder
         )
 
-    # 파일 목록 검색 함수: 주어진 상위 폴더 ID 내에서 전체 파일을 검색합니다.
-    def search_file_list_in_parent(self, parent_folder_id):
+
+    # 파일 목록 검색 함수: 주어진 상위 폴더 ID 내에서 파일을 검색합니다.
+    def search_file_list_in_parent(self, parent_folder_id, pageSize=500):
         """
-        주어진 상위 폴더 ID 내에서 전체 파일을 검색합니다.
+        주어진 상위 폴더 ID 내에서 파일을 검색합니다.
         
         Args:
             parent_folder_id (str): 검색할 상위 폴더의 ID
@@ -59,7 +60,8 @@ class GoogleDriveManager(GoogleBaseManager):
             q=query,
             supportsAllDrives=True,
             includeItemsFromAllDrives=True,
-            fields="files(id, name)"
+            fields="files(id, name, mimeType)",
+            pageSize=pageSize
         ).execute()
         
         items = results.get("files", [])
